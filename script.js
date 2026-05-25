@@ -144,13 +144,13 @@ on("iconSize2", "input", (e) => {
   $("iconBox").style.height = v;
 });
 
-// Export scale display
+// Export scale
 on("exportScale", "input", (e) => {
   $("scaleVal").textContent =
     e.target.value;
 });
 
-// Icon upload
+// ICON UPLOAD
 on("iconUpload", "change", (e) => {
   const file = e.target.files[0];
 
@@ -159,12 +159,24 @@ on("iconUpload", "change", (e) => {
   const reader = new FileReader();
 
   reader.onload = (ev) => {
-    const img = $("iconImg");
+    const oldImg = $("iconImg");
 
-    img.src = ev.target.result;
+    // CREATE NEW IMAGE
+    const newImg =
+      document.createElement("img");
 
-    img.style.display = "block";
+    newImg.id = "iconImg";
 
+    newImg.alt = "";
+
+    newImg.style.display = "block";
+
+    newImg.src = ev.target.result;
+
+    // REPLACE OLD IMAGE
+    oldImg.replaceWith(newImg);
+
+    // HIDE DEFAULT SVG
     $("defaultIcon").style.display =
       "none";
   };
@@ -172,11 +184,20 @@ on("iconUpload", "change", (e) => {
   reader.readAsDataURL(file);
 });
 
-// Reset icon
+// RESET ICON
 on("resetIcon", "click", () => {
-  $("iconImg").src = "";
+  const oldImg = $("iconImg");
 
-  $("iconImg").style.display = "none";
+  const newImg =
+    document.createElement("img");
+
+  newImg.id = "iconImg";
+
+  newImg.alt = "";
+
+  newImg.style.display = "none";
+
+  oldImg.replaceWith(newImg);
 
   $("defaultIcon").style.display =
     "block";
@@ -184,110 +205,138 @@ on("resetIcon", "click", () => {
   $("iconUpload").value = "";
 });
 
-// Export button
+// EXPORT
 on("exportBtn", "click", async () => {
-  const card = $("card");
-
-  if (!card) {
-    alert("Card element not found");
-    return;
-  }
-
-  // Check library
-  if (typeof htmlToImage === "undefined") {
-    alert(
-      "htmlToImage library missing.\n\nAdd this to HTML:\n<script src='https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.min.js'></script>"
-    );
-
-    return;
-  }
-
-  const fmt =
-    $("exportFormat")?.value || "png";
-
-  const scale =
-    parseInt(
-      $("exportScale")?.value,
-      10
-    ) || 2;
-
-  const opts = {
-    pixelRatio: scale,
-    cacheBust: true,
-    backgroundColor: null
-  };
-
   try {
-    let blob;
-
-    // PNG
-    if (fmt === "png") {
-      blob = await htmlToImage.toBlob(
-        card,
-        opts
+    if (
+      typeof htmlToImage === "undefined"
+    ) {
+      throw new Error(
+        "html-to-image library missing"
       );
     }
 
-    // JPEG
-    else if (fmt === "jpeg") {
-      blob = await htmlToImage.toBlob(
-        card,
-        {
-          ...opts,
-          quality: 0.95,
-          backgroundColor: "#ffffff"
-        }
+    const card = $("card");
+
+    if (!card) {
+      throw new Error(
+        "Card element missing"
       );
+    }
+
+    // CLONE CARD
+    const clone =
+      card.cloneNode(true);
+
+    // FIX IMAGE ISSUE
+    const img =
+      clone.querySelector("#iconImg");
+
+    if (
+      img &&
+      (!img.getAttribute("src") ||
+        img.style.display === "none")
+    ) {
+      img.remove();
+    }
+
+    // TEMP WRAPPER
+    const wrapper =
+      document.createElement("div");
+
+    wrapper.style.position =
+      "fixed";
+
+    wrapper.style.left = "-99999px";
+
+    wrapper.style.top = "0";
+
+    wrapper.appendChild(clone);
+
+    document.body.appendChild(wrapper);
+
+    // WAIT
+    await new Promise((r) =>
+      setTimeout(r, 50)
+    );
+
+    const format =
+      $("exportFormat")?.value ||
+      "png";
+
+    const scale =
+      parseInt(
+        $("exportScale")?.value,
+        10
+      ) || 2;
+
+    let dataUrl;
+
+    // PNG
+    if (format === "png") {
+      dataUrl =
+        await htmlToImage.toPng(
+          clone,
+          {
+            pixelRatio: scale,
+            cacheBust: true,
+            backgroundColor: null
+          }
+        );
+    }
+
+    // JPG
+    else if (format === "jpeg") {
+      dataUrl =
+        await htmlToImage.toJpeg(
+          clone,
+          {
+            pixelRatio: scale,
+            quality: 0.95,
+            backgroundColor:
+              "#ffffff",
+            cacheBust: true
+          }
+        );
     }
 
     // SVG
-    else if (fmt === "svg") {
-      const svgUrl =
+    else if (format === "svg") {
+      dataUrl =
         await htmlToImage.toSvg(
-          card,
-          opts
+          clone,
+          {
+            cacheBust: true
+          }
         );
-
-      downloadDataUrl(
-        svgUrl,
-        "troll-gift.svg"
-      );
-
-      return;
     }
 
     // WEBP
-    else if (fmt === "webp") {
-      const pngBlob =
-        await htmlToImage.toBlob(
-          card,
-          opts
+    else if (format === "webp") {
+      const png =
+        await htmlToImage.toPng(
+          clone,
+          {
+            pixelRatio: scale,
+            cacheBust: true
+          }
         );
 
-      blob = await blobToWebp(
-        pngBlob
-      );
+      dataUrl =
+        await pngToWebp(png);
     }
 
-    if (!blob) {
-      throw new Error(
-        "Image generation failed"
-      );
-    }
-
-    const url =
-      URL.createObjectURL(blob);
-
+    // DOWNLOAD
     const a =
       document.createElement("a");
 
-    a.href = url;
+    a.href = dataUrl;
 
     a.download =
-      `troll-gift.${
-        fmt === "jpeg"
+      `gift-card.${
+        format === "jpeg"
           ? "jpg"
-          : fmt
+          : format
       }`;
 
     document.body.appendChild(a);
@@ -296,84 +345,56 @@ on("exportBtn", "click", async () => {
 
     document.body.removeChild(a);
 
-    URL.revokeObjectURL(url);
+    // CLEANUP
+    document.body.removeChild(
+      wrapper
+    );
 
   } catch (err) {
-    console.error(err);
+    console.error(
+      "EXPORT ERROR:",
+      err
+    );
 
     alert(
-      "Export failed:\n\n" +
-      (err?.message ||
-        JSON.stringify(err) ||
-        "Unknown error")
+      err?.message ||
+      "Export failed"
     );
   }
 });
 
-// SVG download helper
-function downloadDataUrl(
-  dataUrl,
-  filename
-) {
-  const a =
-    document.createElement("a");
+// PNG -> WEBP
+function pngToWebp(pngDataUrl) {
+  return new Promise((resolve) => {
+    const img = new Image();
 
-  a.href = dataUrl;
-
-  a.download = filename;
-
-  document.body.appendChild(a);
-
-  a.click();
-
-  document.body.removeChild(a);
-}
-
-// Convert PNG blob → WEBP blob
-function blobToWebp(blob) {
-  return new Promise(
-    (resolve, reject) => {
-      const img = new Image();
-
-      img.onload = () => {
-        const canvas =
-          document.createElement(
-            "canvas"
-          );
-
-        canvas.width = img.width;
-        canvas.height = img.height;
-
-        const ctx =
-          canvas.getContext("2d");
-
-        ctx.drawImage(
-          img,
-          0,
-          0
+    img.onload = () => {
+      const canvas =
+        document.createElement(
+          "canvas"
         );
 
-        canvas.toBlob(
-          (webpBlob) => {
-            if (webpBlob) {
-              resolve(webpBlob);
-            } else {
-              reject(
-                new Error(
-                  "WEBP conversion failed"
-                )
-              );
-            }
-          },
+      canvas.width = img.width;
+
+      canvas.height = img.height;
+
+      const ctx =
+        canvas.getContext("2d");
+
+      ctx.drawImage(
+        img,
+        0,
+        0
+      );
+
+      resolve(
+        canvas.toDataURL(
           "image/webp",
           0.95
-        );
-      };
+        )
+      );
+    };
 
-      img.onerror = reject;
-
-      img.src =
-        URL.createObjectURL(blob);
-    }
-  );
+    img.src = pngDataUrl;
+  });
 }
