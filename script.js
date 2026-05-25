@@ -8,14 +8,20 @@ const on = (id, event, handler) => {
 const bindText = (inputId, targetId) => {
   on(inputId, "input", (e) => {
     const target = $(targetId);
-    if (target) target.textContent = e.target.value;
+
+    if (target) {
+      target.textContent = e.target.value;
+    }
   });
 };
 
 const bindStyle = (inputId, targetId, prop) => {
   on(inputId, "input", (e) => {
     const target = $(targetId);
-    if (target) target.style[prop] = e.target.value;
+
+    if (target) {
+      target.style[prop] = e.target.value;
+    }
   });
 };
 
@@ -47,7 +53,7 @@ const bindRange = (
   update();
 };
 
-const setTheme = () => {
+const toggleTheme = () => {
   const html = document.documentElement;
 
   const next =
@@ -61,7 +67,13 @@ const setTheme = () => {
     next === "dark" ? "🌙" : "☀️";
 };
 
-on("themeToggle", "click", setTheme);
+const trollAlert = () => {
+  alert("Haha noob its fake!!!");
+};
+
+on("themeToggle", "click", toggleTheme);
+
+on("cardBtn", "click", trollAlert);
 
 bindText("headerText", "cardHeader");
 bindText("nameText", "cardName");
@@ -195,6 +207,15 @@ const exportCard = async () => {
   clone.style.transform = "none";
   clone.style.scale = "1";
 
+  const button =
+    clone.querySelector("#cardBtn");
+
+  if (button) {
+    button.replaceWith(
+      button.cloneNode(true)
+    );
+  }
+
   const img =
     clone.querySelector("#iconImg");
 
@@ -234,20 +255,21 @@ const exportCard = async () => {
 
   let dataUrl;
 
+  const options = {
+    pixelRatio: scale,
+    canvasWidth:
+      clone.offsetWidth * scale,
+    canvasHeight:
+      clone.offsetHeight * scale,
+    cacheBust: true,
+    backgroundColor: null
+  };
+
   if (format === "png") {
     dataUrl =
       await htmlToImage.toPng(
         clone,
-        {
-          pixelRatio: scale,
-          canvasWidth:
-            clone.offsetWidth * scale,
-          canvasHeight:
-            clone.offsetHeight *
-            scale,
-          backgroundColor: null,
-          cacheBust: true
-        }
+        options
       );
   }
 
@@ -256,16 +278,10 @@ const exportCard = async () => {
       await htmlToImage.toJpeg(
         clone,
         {
-          pixelRatio: scale,
-          canvasWidth:
-            clone.offsetWidth * scale,
-          canvasHeight:
-            clone.offsetHeight *
-            scale,
+          ...options,
           quality: 0.95,
           backgroundColor:
-            "#ffffff",
-          cacheBust: true
+            "#ffffff"
         }
       );
   }
@@ -284,15 +300,7 @@ const exportCard = async () => {
     const png =
       await htmlToImage.toPng(
         clone,
-        {
-          pixelRatio: scale,
-          canvasWidth:
-            clone.offsetWidth * scale,
-          canvasHeight:
-            clone.offsetHeight *
-            scale,
-          cacheBust: true
-        }
+        options
       );
 
     dataUrl =
