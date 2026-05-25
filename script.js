@@ -1,61 +1,72 @@
 const $ = (id) => document.getElementById(id);
 
-// Safe event helper
 const on = (id, event, handler) => {
   const el = $(id);
-
-  if (el) {
-    el.addEventListener(event, handler);
-  } else {
-    console.warn(`Element #${id} not found`);
-  }
+  if (el) el.addEventListener(event, handler);
 };
 
-// Theme toggle
-const themeBtn = $("themeToggle");
-
-if (themeBtn) {
-  themeBtn.addEventListener("click", () => {
-    const html = document.documentElement;
-
-    const next =
-      html.dataset.theme === "dark"
-        ? "light"
-        : "dark";
-
-    html.dataset.theme = next;
-
-    themeBtn.textContent =
-      next === "dark" ? "🌙" : "☀️";
-  });
-}
-
-// Text bindings
 const bindText = (inputId, targetId) => {
   on(inputId, "input", (e) => {
     const target = $(targetId);
-
-    if (target) {
-      target.textContent = e.target.value;
-    }
+    if (target) target.textContent = e.target.value;
   });
 };
+
+const bindStyle = (inputId, targetId, prop) => {
+  on(inputId, "input", (e) => {
+    const target = $(targetId);
+    if (target) target.style[prop] = e.target.value;
+  });
+};
+
+const bindRange = (
+  inputId,
+  valueId,
+  targetId,
+  prop,
+  unit = "px"
+) => {
+  const input = $(inputId);
+  const value = $(valueId);
+  const target = $(targetId);
+
+  if (!input || !value || !target) return;
+
+  const update = () => {
+    const v = input.value;
+
+    value.textContent = v;
+
+    if (prop) {
+      target.style[prop] = v + unit;
+    }
+  };
+
+  input.addEventListener("input", update);
+
+  update();
+};
+
+const setTheme = () => {
+  const html = document.documentElement;
+
+  const next =
+    html.dataset.theme === "dark"
+      ? "light"
+      : "dark";
+
+  html.dataset.theme = next;
+
+  $("themeToggle").textContent =
+    next === "dark" ? "🌙" : "☀️";
+};
+
+on("themeToggle", "click", setTheme);
 
 bindText("headerText", "cardHeader");
 bindText("nameText", "cardName");
 bindText("subText", "cardSub");
 bindText("buttonText", "cardBtn");
-
-// Style bindings
-const bindStyle = (inputId, targetId, prop) => {
-  on(inputId, "input", (e) => {
-    const target = $(targetId);
-
-    if (target) {
-      target.style[prop] = e.target.value;
-    }
-  });
-};
 
 bindStyle("cardBg", "card", "background");
 bindStyle("headerColor", "cardHeader", "color");
@@ -65,37 +76,11 @@ bindStyle("btnBg", "cardBtn", "background");
 bindStyle("btnText", "cardBtn", "color");
 bindStyle("iconBg", "iconBox", "background");
 
-// Range bindings
-const bindRange = (
-  inputId,
-  valId,
-  targetId,
-  prop,
-  unit = "px"
-) => {
-  const input = $(inputId);
-  const val = $(valId);
-  const target = $(targetId);
-
-  if (!input || !val || !target) {
-    console.warn(`Missing range binding: ${inputId}`);
-    return;
-  }
-
-  input.addEventListener("input", (e) => {
-    const v = e.target.value;
-
-    val.textContent = v;
-
-    target.style[prop] = v + unit;
-  });
-};
-
 bindRange(
   "cardWidth",
   "cardWidthVal",
   "card",
-  "maxWidth"
+  "width"
 );
 
 bindRange(
@@ -133,50 +118,45 @@ bindRange(
   "borderRadius"
 );
 
-// Icon size
 on("iconSize2", "input", (e) => {
-  const v = e.target.value + "px";
+  const size = e.target.value + "px";
 
   $("iconSize2Val").textContent =
     e.target.value;
 
-  $("iconBox").style.width = v;
-  $("iconBox").style.height = v;
+  $("iconBox").style.width = size;
+  $("iconBox").style.height = size;
 });
 
-// Export scale
 on("exportScale", "input", (e) => {
   $("scaleVal").textContent =
     e.target.value;
 });
 
-// ICON UPLOAD
 on("iconUpload", "change", (e) => {
-  const file = e.target.files[0];
+  const file = e.target.files?.[0];
 
   if (!file) return;
 
   const reader = new FileReader();
 
-  reader.onload = (ev) => {
+  reader.onload = ({ target }) => {
     const oldImg = $("iconImg");
 
-    // CREATE NEW IMAGE
-    const newImg =
+    const img =
       document.createElement("img");
 
-    newImg.id = "iconImg";
+    img.id = "iconImg";
+    img.alt = "";
+    img.src = target.result;
 
-    newImg.alt = "";
+    img.style.display = "block";
+    img.style.width = "100%";
+    img.style.height = "100%";
+    img.style.objectFit = "cover";
 
-    newImg.style.display = "block";
+    oldImg.replaceWith(img);
 
-    newImg.src = ev.target.result;
-
-    // REPLACE OLD IMAGE
-    oldImg.replaceWith(newImg);
-
-    // HIDE DEFAULT SVG
     $("defaultIcon").style.display =
       "none";
   };
@@ -184,20 +164,18 @@ on("iconUpload", "change", (e) => {
   reader.readAsDataURL(file);
 });
 
-// RESET ICON
 on("resetIcon", "click", () => {
   const oldImg = $("iconImg");
 
-  const newImg =
+  const img =
     document.createElement("img");
 
-  newImg.id = "iconImg";
+  img.id = "iconImg";
+  img.alt = "";
 
-  newImg.alt = "";
+  img.style.display = "none";
 
-  newImg.style.display = "none";
-
-  oldImg.replaceWith(newImg);
+  oldImg.replaceWith(img);
 
   $("defaultIcon").style.display =
     "block";
@@ -205,166 +183,153 @@ on("resetIcon", "click", () => {
   $("iconUpload").value = "";
 });
 
-// EXPORT
+const exportCard = async () => {
+  const card = $("card");
+
+  if (!card) return;
+
+  const clone =
+    card.cloneNode(true);
+
+  clone.style.margin = "0";
+  clone.style.transform = "none";
+  clone.style.scale = "1";
+
+  const img =
+    clone.querySelector("#iconImg");
+
+  if (
+    img &&
+    (!img.getAttribute("src") ||
+      img.style.display === "none")
+  ) {
+    img.remove();
+  }
+
+  const wrapper =
+    document.createElement("div");
+
+  wrapper.style.position = "fixed";
+  wrapper.style.left = "-99999px";
+  wrapper.style.top = "0";
+  wrapper.style.padding = "0";
+  wrapper.style.margin = "0";
+
+  wrapper.appendChild(clone);
+
+  document.body.appendChild(wrapper);
+
+  await new Promise((r) =>
+    requestAnimationFrame(r)
+  );
+
+  const format =
+    $("exportFormat").value;
+
+  const scale =
+    parseInt(
+      $("exportScale").value,
+      10
+    ) || 2;
+
+  let dataUrl;
+
+  if (format === "png") {
+    dataUrl =
+      await htmlToImage.toPng(
+        clone,
+        {
+          pixelRatio: scale,
+          canvasWidth:
+            clone.offsetWidth * scale,
+          canvasHeight:
+            clone.offsetHeight *
+            scale,
+          backgroundColor: null,
+          cacheBust: true
+        }
+      );
+  }
+
+  else if (format === "jpeg") {
+    dataUrl =
+      await htmlToImage.toJpeg(
+        clone,
+        {
+          pixelRatio: scale,
+          canvasWidth:
+            clone.offsetWidth * scale,
+          canvasHeight:
+            clone.offsetHeight *
+            scale,
+          quality: 0.95,
+          backgroundColor:
+            "#ffffff",
+          cacheBust: true
+        }
+      );
+  }
+
+  else if (format === "svg") {
+    dataUrl =
+      await htmlToImage.toSvg(
+        clone,
+        {
+          cacheBust: true
+        }
+      );
+  }
+
+  else if (format === "webp") {
+    const png =
+      await htmlToImage.toPng(
+        clone,
+        {
+          pixelRatio: scale,
+          canvasWidth:
+            clone.offsetWidth * scale,
+          canvasHeight:
+            clone.offsetHeight *
+            scale,
+          cacheBust: true
+        }
+      );
+
+    dataUrl =
+      await pngToWebp(png);
+  }
+
+  const link =
+    document.createElement("a");
+
+  link.href = dataUrl;
+
+  link.download =
+    `gift-card.${
+      format === "jpeg"
+        ? "jpg"
+        : format
+    }`;
+
+  document.body.appendChild(link);
+
+  link.click();
+
+  document.body.removeChild(link);
+
+  wrapper.remove();
+};
+
 on("exportBtn", "click", async () => {
   try {
-    if (
-      typeof htmlToImage === "undefined"
-    ) {
-      throw new Error(
-        "html-to-image library missing"
-      );
-    }
-
-    const card = $("card");
-
-    if (!card) {
-      throw new Error(
-        "Card element missing"
-      );
-    }
-
-    // CLONE CARD
-    const clone =
-      card.cloneNode(true);
-
-    // FIX IMAGE ISSUE
-    const img =
-      clone.querySelector("#iconImg");
-
-    if (
-      img &&
-      (!img.getAttribute("src") ||
-        img.style.display === "none")
-    ) {
-      img.remove();
-    }
-
-    // TEMP WRAPPER
-    const wrapper =
-      document.createElement("div");
-
-    wrapper.style.position =
-      "fixed";
-
-    wrapper.style.left = "-99999px";
-
-    wrapper.style.top = "0";
-
-    wrapper.appendChild(clone);
-
-    document.body.appendChild(wrapper);
-
-    // WAIT
-    await new Promise((r) =>
-      setTimeout(r, 50)
-    );
-
-    const format =
-      $("exportFormat")?.value ||
-      "png";
-
-    const scale =
-      parseInt(
-        $("exportScale")?.value,
-        10
-      ) || 2;
-
-    let dataUrl;
-
-    // PNG
-    if (format === "png") {
-      dataUrl =
-        await htmlToImage.toPng(
-          clone,
-          {
-            pixelRatio: scale,
-            cacheBust: true,
-            backgroundColor: null
-          }
-        );
-    }
-
-    // JPG
-    else if (format === "jpeg") {
-      dataUrl =
-        await htmlToImage.toJpeg(
-          clone,
-          {
-            pixelRatio: scale,
-            quality: 0.95,
-            backgroundColor:
-              "#ffffff",
-            cacheBust: true
-          }
-        );
-    }
-
-    // SVG
-    else if (format === "svg") {
-      dataUrl =
-        await htmlToImage.toSvg(
-          clone,
-          {
-            cacheBust: true
-          }
-        );
-    }
-
-    // WEBP
-    else if (format === "webp") {
-      const png =
-        await htmlToImage.toPng(
-          clone,
-          {
-            pixelRatio: scale,
-            cacheBust: true
-          }
-        );
-
-      dataUrl =
-        await pngToWebp(png);
-    }
-
-    // DOWNLOAD
-    const a =
-      document.createElement("a");
-
-    a.href = dataUrl;
-
-    a.download =
-      `gift-card.${
-        format === "jpeg"
-          ? "jpg"
-          : format
-      }`;
-
-    document.body.appendChild(a);
-
-    a.click();
-
-    document.body.removeChild(a);
-
-    // CLEANUP
-    document.body.removeChild(
-      wrapper
-    );
-
+    await exportCard();
   } catch (err) {
-    console.error(
-      "EXPORT ERROR:",
-      err
-    );
-
-    alert(
-      err?.message ||
-      "Export failed"
-    );
+    console.error(err);
+    alert("Export failed");
   }
 });
 
-// PNG -> WEBP
-function pngToWebp(pngDataUrl) {
+function pngToWebp(dataUrl) {
   return new Promise((resolve) => {
     const img = new Image();
 
@@ -375,17 +340,12 @@ function pngToWebp(pngDataUrl) {
         );
 
       canvas.width = img.width;
-
       canvas.height = img.height;
 
       const ctx =
         canvas.getContext("2d");
 
-      ctx.drawImage(
-        img,
-        0,
-        0
-      );
+      ctx.drawImage(img, 0, 0);
 
       resolve(
         canvas.toDataURL(
@@ -395,6 +355,6 @@ function pngToWebp(pngDataUrl) {
       );
     };
 
-    img.src = pngDataUrl;
+    img.src = dataUrl;
   });
 }
