@@ -141,7 +141,7 @@ const exportCard = async () => {
   await new Promise((r) => requestAnimationFrame(r));
 
   const format = $("exportFormat")?.value || "png";
-  const scale = parseInt($("exportScale")?.value, 10) || 2;
+  const scale = parseInt($("exportScale")?.value, 10) || 1;
   const options = {
     pixelRatio: scale,
     width: clone.offsetWidth,
