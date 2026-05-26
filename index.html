@@ -1,97 +1,260 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Discord Troll Gift Maker</title>
-<link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Discord Troll Gift Maker</title>
+
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+
   <header class="topbar">
     <h1>Gift Card Maker</h1>
-    <button id="themeToggle" class="theme-btn" aria-label="Toggle theme">☀️</button>
+
+    <button
+      id="themeToggle"
+      class="theme-btn"
+      aria-label="Toggle theme"
+    >
+      ☀️
+    </button>
   </header>
 
   <main class="layout">
+
     <section class="controls">
+
       <details open>
         <summary>Text</summary>
+
         <div class="group">
-          <label>Header text
-            <input type="text" id="headerText" value="A WILD GIFT APPEARS!" />
+
+          <label>
+            Header text
+
+            <input
+              type="text"
+              id="headerText"
+              value="A WILD GIFT APPEARS!"
+            />
           </label>
-          <label>Gift name
-            <input type="text" id="nameText" value="Nitro Basic" />
+
+          <label>
+            Gift name
+
+            <input
+              type="text"
+              id="nameText"
+              value="Nitro Basic"
+            />
           </label>
-          <label>Subtitle
-            <input type="text" id="subText" value="Expires in 43 hours" />
+
+          <label>
+            Subtitle
+
+            <input
+              type="text"
+              id="subText"
+              value="Expires in 43 hours"
+            />
           </label>
-          <label>Button text
-            <input type="text" id="buttonText" value="Accept" />
+
+          <label>
+            Button text
+
+            <input
+              type="text"
+              id="buttonText"
+              value="Accept"
+            />
           </label>
+
         </div>
       </details>
 
       <details open>
         <summary>Colors</summary>
+
         <div class="group">
+
           <div class="row">
-            <label>Card BG<input type="color" id="cardBg" value="#2b2d31" /></label>
-            <label>Header color<input type="color" id="headerColor" value="#b5bac1" /></label>
+            <label>
+              Card BG
+              <input type="color" id="cardBg" value="#2b2d31" />
+            </label>
+
+            <label>
+              Header color
+              <input type="color" id="headerColor" value="#b5bac1" />
+            </label>
           </div>
+
           <div class="row">
-            <label>Name color<input type="color" id="nameColor" value="#ffffff" /></label>
-            <label>Subtitle color<input type="color" id="subColor" value="#b5bac1" /></label>
+            <label>
+              Name color
+              <input type="color" id="nameColor" value="#ffffff" />
+            </label>
+
+            <label>
+              Subtitle color
+              <input type="color" id="subColor" value="#b5bac1" />
+            </label>
           </div>
+
           <div class="row">
-            <label>Button BG<input type="color" id="btnBg" value="#5865f2" /></label>
-            <label>Button text<input type="color" id="btnText" value="#ffffff" /></label>
+            <label>
+              Button BG
+              <input type="color" id="btnBg" value="#5865f2" />
+            </label>
+
+            <label>
+              Button text
+              <input type="color" id="btnText" value="#ffffff" />
+            </label>
           </div>
-          <label>Icon BG<input type="color" id="iconBg" value="#1d6cf3" /></label>
+
+          <label>
+            Icon BG
+            <input type="color" id="iconBg" value="#1d6cf3" />
+          </label>
+
         </div>
       </details>
 
       <details>
         <summary>Sizing</summary>
+
         <div class="group">
-          <label>Card width <span class="val" id="cardWidthVal">440</span>px
-            <input type="range" id="cardWidth" min="280" max="600" value="440" />
+
+          <label>
+            Card width
+            <span class="val" id="cardWidthVal">440</span>px
+
+            <input
+              type="range"
+              id="cardWidth"
+              min="280"
+              max="600"
+              value="440"
+            />
           </label>
-          <label>Card radius <span class="val" id="cardRadiusVal">12</span>px
-            <input type="range" id="cardRadius" min="0" max="32" value="12" />
+
+          <label>
+            Card radius
+            <span class="val" id="cardRadiusVal">12</span>px
+
+            <input
+              type="range"
+              id="cardRadius"
+              min="0"
+              max="32"
+              value="12"
+            />
           </label>
-          <label>Name size <span class="val" id="nameSizeVal">22</span>px
-            <input type="range" id="nameSize" min="12" max="40" value="22" />
+
+          <label>
+            Name size
+            <span class="val" id="nameSizeVal">22</span>px
+
+            <input
+              type="range"
+              id="nameSize"
+              min="12"
+              max="40"
+              value="22"
+            />
           </label>
-          <label>Header size <span class="val" id="headerSizeVal">13</span>px
-            <input type="range" id="headerSize" min="10" max="24" value="13" />
+
+          <label>
+            Header size
+            <span class="val" id="headerSizeVal">13</span>px
+
+            <input
+              type="range"
+              id="headerSize"
+              min="10"
+              max="24"
+              value="13"
+            />
           </label>
-          <label>Icon size <span class="val" id="iconSize2Val">72</span>px
-            <input type="range" id="iconSize2" min="40" max="120" value="72" />
+
+          <label>
+            Icon size
+            <span class="val" id="iconSize2Val">72</span>px
+
+            <input
+              type="range"
+              id="iconSize2"
+              min="40"
+              max="120"
+              value="72"
+            />
           </label>
-          <label>Icon radius <span class="val" id="iconRadiusVal">12</span>px
-            <input type="range" id="iconRadius" min="0" max="60" value="12" />
+
+          <label>
+            Icon radius
+            <span class="val" id="iconRadiusVal">12</span>px
+
+            <input
+              type="range"
+              id="iconRadius"
+              min="0"
+              max="60"
+              value="12"
+            />
           </label>
-          <label>Button radius <span class="val" id="btnRadiusVal">8</span>px
-            <input type="range" id="btnRadius" min="0" max="32" value="8" />
+
+          <label>
+            Button radius
+            <span class="val" id="btnRadiusVal">8</span>px
+
+            <input
+              type="range"
+              id="btnRadius"
+              min="0"
+              max="32"
+              value="8"
+            />
           </label>
+
         </div>
       </details>
 
       <details>
         <summary>Icon</summary>
+
         <div class="group">
-          <label>Upload image
-            <input type="file" id="iconUpload" accept="image/*" />
+
+          <label>
+            Upload image
+
+            <input
+              type="file"
+              id="iconUpload"
+              accept="image/*"
+            />
           </label>
-          <button type="button" id="resetIcon" class="ghost-btn">Reset to default</button>
+
+          <button
+            type="button"
+            id="resetIcon"
+            class="ghost-btn"
+          >
+            Reset to default
+          </button>
+
         </div>
       </details>
 
       <details open>
         <summary>Export</summary>
+
         <div class="group">
-          <label>Format
+
+          <label>
+            Format
+
             <select id="exportFormat">
               <option value="png">PNG</option>
               <option value="jpeg">JPG</option>
@@ -100,40 +263,113 @@
               <option value="gif">GIF</option>
             </select>
           </label>
-          <label>Scale <span class="val" id="scaleVal">1</span>x
-            <input type="range" id="exportScale" min="1" max="4" step="1" value="1" />
+
+          <!-- DEFAULT EXPORT SCALE = 1 -->
+          <label>
+            Scale
+            <span class="val" id="scaleVal">1</span>x
+
+            <input
+              type="range"
+              id="exportScale"
+              min="1"
+              max="4"
+              step="1"
+              value="1"
+            />
           </label>
-          <button id="exportBtn" class="export-btn">Download</button>
+
+          <button id="exportBtn" class="export-btn">
+            Download
+          </button>
+
         </div>
       </details>
+
     </section>
 
     <section class="preview-wrap">
+
       <div id="card" class="card">
-        <div id="cardHeader" class="card-header">A WILD GIFT APPEARS!</div>
-        <div class="card-body">
-          <div id="iconBox" class="icon-box">
-            <img id="iconImg" src="" alt="" style="display:none" />
-            <svg id="defaultIcon" viewBox="0 0 64 64" width="44" height="44" fill="none">
-              <circle cx="32" cy="32" r="14" stroke="white" stroke-width="3"/>
-              <polygon points="32,22 40,32 32,42 24,32" fill="white"/>
-              <circle cx="14" cy="32" r="3" fill="white"/>
-            </svg>
-          </div>
-          <div class="text-block">
-            <div id="cardName" class="card-name">Nitro Basic</div>
-            <div id="cardSub" class="card-sub">Expires in 43 hours</div>
-          </div>
+
+        <div id="cardHeader" class="card-header">
+          A WILD GIFT APPEARS!
         </div>
-        <button id="cardBtn" class="card-btn">Accept</button>
+
+        <div class="card-body">
+
+          <div id="iconBox" class="icon-box">
+
+            <img
+              id="iconImg"
+              src=""
+              alt=""
+              style="display:none"
+            />
+
+            <svg
+              id="defaultIcon"
+              viewBox="0 0 64 64"
+              width="44"
+              height="44"
+              fill="none"
+            >
+              <circle
+                cx="32"
+                cy="32"
+                r="14"
+                stroke="white"
+                stroke-width="3"
+              />
+
+              <polygon
+                points="32,22 40,32 32,42 24,32"
+                fill="white"
+              />
+
+              <circle
+                cx="14"
+                cy="32"
+                r="3"
+                fill="white"
+              />
+            </svg>
+
+          </div>
+
+          <div class="text-block">
+
+            <div id="cardName" class="card-name">
+              Nitro Basic
+            </div>
+
+            <div id="cardSub" class="card-sub">
+              Expires in 43 hours
+            </div>
+
+          </div>
+
+        </div>
+
+        <button id="cardBtn" class="card-btn">
+          Accept
+        </button>
+
       </div>
+
     </section>
+
   </main>
 
-  <footer class="made-by">made by alfie</footer>
+  <footer class="made-by">
+    made by alfie
+  </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.min.js"></script>
+
   <script src="https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.js"></script>
+
   <script src="script.js"></script>
+
 </body>
 </html>
