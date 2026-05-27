@@ -1,79 +1,35 @@
 import { $, on } from "../utils/dom.js";
 
-export const initIconUpload =
-  () => {
-    on(
-      "iconUpload",
-      "change",
-      (e) => {
-        const file =
-          e.target.files?.[0];
+const swapIcon = (src) => {
+  const oldImg = $("iconImg");
+  const img = document.createElement("img");
+  img.id = "iconImg";
+  img.alt = "";
+  if (src) {
+    img.src = src;
+    img.style.display = "block";
+    img.style.width = "100%";
+    img.style.height = "100%";
+    img.style.objectFit = "cover";
+  } else {
+    img.style.display = "none";
+  }
+  oldImg.replaceWith(img);
+  $("defaultIcon").style.display = src ? "none" : "block";
+};
 
-        if (!file) {
-          return;
-        }
+export const initIconUpload = () => {
+  on("iconUpload", "change", (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ({ target }) => swapIcon(target.result);
+    reader.readAsDataURL(file);
+  });
 
-        const reader =
-          new FileReader();
-
-        reader.onload = ({
-          target,
-        }) => {
-          const oldImg =
-            $("iconImg");
-
-          const img =
-            document.createElement(
-              "img"
-            );
-
-          img.id = "iconImg";
-          img.src = target.result;
-
-          img.style.width =
-            "100%";
-
-          img.style.height =
-            "100%";
-
-          img.style.objectFit =
-            "cover";
-
-          oldImg.replaceWith(img);
-
-          $("defaultIcon").style.display =
-            "none";
-        };
-
-        reader.readAsDataURL(
-          file
-        );
-      }
-    );
-
-    on(
-      "resetIcon",
-      "click",
-      () => {
-        const oldImg =
-          $("iconImg");
-
-        const img =
-          document.createElement(
-            "img"
-          );
-
-        img.id = "iconImg";
-        img.style.display =
-          "none";
-
-        oldImg.replaceWith(img);
-
-        $("defaultIcon").style.display =
-          "block";
-
-        $("iconUpload").value =
-          "";
-      }
-    );
-  };
+  on("resetIcon", "click", () => {
+    swapIcon(null);
+    const upload = $("iconUpload");
+    if (upload) upload.value = "";
+  });
+};
